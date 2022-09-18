@@ -18,7 +18,6 @@ WS_OP_UNSUBSCRIBE = "unsubscribe"
 
 
 def handle(message):
-    print("default:" + message)
     pass
 
 def handel_error(message):
