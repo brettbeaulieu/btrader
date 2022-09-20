@@ -60,8 +60,8 @@ class ScreenerTable(QTableView):
         # -Get all symbols from REST API-
         symbols = u.getAllSymbols(self.mAPI, self.types)
         channels = [SubscribeReq("mc", "ticker", x) for x in symbols]
-        worker = Worker(lambda message: self.wsClient.subscribe(channels, self.pushData(message)))
-        self.threadPool.start(worker)
+        self.wsClient.subscribe(channels, self.pushData)
+
 
     def pushData(self, message):
         message = list(json.loads(message)["data"][0].values())
