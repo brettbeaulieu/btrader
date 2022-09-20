@@ -1,51 +1,78 @@
-from PyQt5 import QtCore
-from PyQt5.QtCore import Qt, QModelIndex
+import datetime
+import operator
+
+from PyQt5.QtGui import QColor
+from PyQt5.QtCore import QModelIndex, Qt, QVariant, QAbstractTableModel, QModelIndex
 
 
-class ScreenerModel(QtCore.QAbstractTableModel):
-    def __init__(self, data, headers):
-        super(ScreenerModel, self).__init__()
-        self._data = data
+class ScreenerModel(QAbstractTableModel):
+    def __init__(self, headers, client):
+        super().__init__()
+        self._data = []
         self._headers = headers
-        
+
     def addData(self, data):
-        self._data[data[0]] = data
+        try:
+            self.setData(data)
+        except ValueError:
+            row = len(self._data)
+            self.beginInsertRows(QModelIndex(), row, row)
+            self._data.append(data)
+            self.endInsertRows()
+
+    def setData(self, data):
+        index = [x[0] for x in self._data].index(data[0])
+        self._data[index] = data
+
+    def index(self, row: int, column: int, parent: QModelIndex = QModelIndex()):
+        if (row >= 0) and (row < self.rowCount(0)):
+            if (column >= 0) and (column < self.columnCount(0)):
+                return self.createIndex(row, column, self._data[row][column])
+        return QModelIndex()
 
     def data(self, index, role):
-        if len(self._data)==0:
-            return ""
-        row = list(self._data.keys())[index.row()]
+        # Text Alignment
+        if role == Qt.TextAlignmentRole:
+            return Qt.AlignCenter
+
+        # Text Coloration. Try Qt.BackgroundRole for background colors. :D
+        if role == Qt.ForegroundRole and index.column() == 6:
+            if self._data[index.row()][index.column()] > 0:
+                return QColor(100, 255, 100)    
+            elif self._data[index.row()][index.column()] < 0:
+                return QColor(255, 100, 100)
+
         if role == Qt.DisplayRole:
-            # See below for the nested-list data structure.
-            # .row() indexes into the outer list,
-            # .column() indexes into the sub-list
-            return self._data[row][index.column()]
+            if self._headers[index.column()].find("Time") != -1:
+                val = int(self._data[index.row()][index.column()])
+                val2 = datetime.datetime.fromtimestamp(val / 1000)
+                return val2.strftime("%m/%d %H:%M")
+            return self._data[index.row()][index.column()]
 
-    def setHeaderData(self, section, orientation, data, role=Qt.EditRole):
+    def setHeaderData(self, column, orientation, data, role=Qt.EditRole):
         if orientation == Qt.Horizontal and role in (Qt.DisplayRole, Qt.EditRole):
-            try:
-                self._headers[section] = data
-                return True
-            except:
-                return False
-        return super().setHeaderData(section, orientation, data, role)
+            self._headers[column] = data
+            return True
+        return super().setHeaderData(column, orientation, data, role)
 
-    def headerData(self, section, orientation, role=Qt.DisplayRole):
+    def headerData(self, column, orientation, role=Qt.DisplayRole):
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
-            try:
-                return self._headers[section]
-            except:
-                pass
-        return super().headerData(section, orientation, role)
+            return self._headers[column]
+        return super().headerData(column, orientation, role)
 
-    def rowCount(self, index):
-        # The length of the outer list.
+    def sort(self, col: int, order):
+        """Sort table by given column number."""
+        if len(self._data) > 0:
+            self._data = sorted(self._data, key=operator.itemgetter(col))
+            
+            if order == Qt.DescendingOrder:
+                self._data.reverse()
+
+            # self.emit(SIGNAL("layoutAboutToBeChanged()"))
+            # self.emit(SIGNAL("layoutChanged()"))
+
+    def rowCount(self, parent):
         return len(self._data)
 
-    def columnCount(self, index):
-        # The following takes the first sub-list, and returns
-        # the length (only works if all rows are an equal length)
-        if len(self._data) > 0:
-            val1 = list(self._data.keys())[0]
-            return len(self._data[val1])
-        return 0
+    def columnCount(self, parent):
+        return len(self._headers)

@@ -31,4 +31,4 @@ TICKER_HEADERS={
                 }
 
 DEFAULT_HEADERS = ["Symbol", "Last Price", "Best Ask", "Best Bid", "24H High", "24H Low",
-                   "Price Change (%)", "Funding Rate", "Next Settle Time", "System Time", "Mark Price", "Index Price", "Holding", "Base Volume", "Quote Volume", "Open UTC", "Change UTC (%)"]
+                   "Price Change (%)", "Funding Rate", "Next Settle Time", "Mark Price", "Index Price", "Holding", "Base Volume", "Quote Volume", "Open UTC", "Change UTC (%)"]

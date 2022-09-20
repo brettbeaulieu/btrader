@@ -1,79 +1,70 @@
 import json
-import sys
-from turtle import Screen
-
 
 from bitget.ws.bitget_ws_client import SubscribeReq
-from PyQt5 import QtWidgets
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import (QHBoxLayout, QHeaderView,
-                             QListWidget, QListWidgetItem, QPushButton,
-                             QSizePolicy, QSpacerItem, QStyle, QTableView,
-                             QTableWidgetItem, QTabWidget, QVBoxLayout,
-                             QWidget)
-
+from PyQt5.QtCore import QThreadPool
+from PyQt5.QtGui import QFont
+from PyQt5.QtWidgets import QFrame, QHeaderView, QTableView
+from .multithread.worker import Worker
 from screener import const as c
-from screener.screenerModel import ScreenerModel
 from screener import utils as u
+from screener.screenerModel import ScreenerModel
 
 
 class ScreenerTable(QTableView):
     def __init__(self, mAPI, wsClient, headers=c.DEFAULT_HEADERS, types=c.TYPES[0]):
         super().__init__()
-        self.left = 0
-        self.top = 0
-        self.width = 1280
-        self.height = 720
-        self.setGeometry(self.left, self.top, self.width, self.height)
-        self.setStyleSheet("background-color:#121212;")
-        self.showGrid()
-        self.client = wsClient
         self.mAPI = mAPI
+        self.wsClient = wsClient
         self.headers = headers
         self.types = types
-        self.contracts = {}
 
-        # table.setAlternatingRowColors(True)
-        self.setFrameShape(QtWidgets.QFrame.NoFrame)
-        self.setFrameShadow(QtWidgets.QFrame.Plain)
+        self.font = QFont("Bahnschrift", 12)
+        self.setFont(self.font)
+        self.horizontalHeader().setFont(self.font)
+        self.verticalHeader().setFont(self.font)
+        self.setStyleSheet(
+            "QTableView QTableCornerButton::section { background: #121212; }")
+        self.setFrameShape(QFrame.NoFrame)
+        self.setFrameShadow(QFrame.Plain)
+        self.setAlternatingRowColors(True)
+        self.buildStyle()
 
+        self.model = ScreenerModel(self.headers, self.wsClient)
+        self.setModel(self.model)
+        self.setShowGrid(False)
+        self.threadPool = QThreadPool()
+
+    def buildStyle(self):
         # Horizontal Headers
-        self.horizontalHeader().setFrameShape(QtWidgets.QFrame.NoFrame)
+        self.horizontalHeader().setFrameShape(QFrame.NoFrame)
         self.horizontalHeader().setStyleSheet(
             "::section{background-color:#3D3D3D; color: white;}")
         self.horizontalHeader().setStretchLastSection(True)
         self.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
         # Vertical Headers
-        self.verticalHeader().setFrameShape(QtWidgets.QFrame.NoFrame)
+        self.verticalHeader().setFrameShape(QFrame.NoFrame)
         self.verticalHeader().setStyleSheet(
             "::section{background-color:#3D3D3D; color: white;}")
 
+        # Styling
         self.setStyleSheet(
-            "QWidget{background-color:#282828; color: white; alternate-background-color:#3D3D3D;}"
-            + "QTableWidget QTableCornerButton::section { background-color: #3D3D3D; }"
-        )
-
-        self.subscribeAllTickers()
-        self.model = ScreenerModel(self.contracts, self.headers)
-
-        self.setModel(self.model)
-        self.setSortingEnabled(True)
+            "QWidget{\
+                background-color:#282828; color: white; \
+                alternate-background-color:#3D3D3D;}\
+             QTableWidget QTableCornerButton::section {\
+                background-color: #3D3D3D; }" )
 
     def subscribeAllTickers(self):
         # --Subscribe to Channels--
         # -Get all symbols from REST API-
         symbols = u.getAllSymbols(self.mAPI, self.types)
         channels = [SubscribeReq("mc", "ticker", x) for x in symbols]
-        self.client.subscribe(channels, self.handleTicker)
+        worker = Worker(lambda message: self.wsClient.subscribe(channels, self.pushData(message)))
+        self.threadPool.start(worker)
 
-    def updateTable(self):
-        self.update()
-    
-    def handle(self, message):
-        pass
-
-    def handleTicker(self, message):  # TODO: Make tab selection more robust
-        message = json.loads(message)["data"]
-        message = list(message[0].values())
+    def pushData(self, message):
+        message = list(json.loads(message)["data"][0].values())
+        message.pop(8)
+        message[1:] = [float(x) for x in message[1:]]
         self.model.addData(message)
