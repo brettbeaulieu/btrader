@@ -28,7 +28,7 @@ series = asyncio.run(
 )
 duration = time.time() - startTime
 
-f = open("myfile.txt", "w",encoding="utf-8")
+f = open("myfile.txt", "w", encoding="utf-8")
 leng = 0
 for x in series:
     for candle in x:

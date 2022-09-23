@@ -6,7 +6,7 @@ from PyQt5.QtCore import QModelIndex, Qt, QVariant, QAbstractTableModel, QModelI
 
 
 class ScreenerModel(QAbstractTableModel):
-    def __init__(self, headers, client):
+    def __init__(self, headers):
         super().__init__()
         self._data = []
         self._headers = headers
@@ -35,12 +35,17 @@ class ScreenerModel(QAbstractTableModel):
         if role == Qt.TextAlignmentRole:
             return Qt.AlignCenter
 
-        # Text Coloration. Try Qt.BackgroundRole for background colors. :D
-        if role == Qt.ForegroundRole and index.column() == 6:
-            if self._data[index.row()][index.column()] > 0:
-                return QColor(100, 255, 100)    
-            elif self._data[index.row()][index.column()] < 0:
-                return QColor(255, 100, 100)
+        # Generally percent column
+        if index.column() == 6:
+            # Text Coloration. Try Qt.BackgroundRole for background colors. :D
+            if role == Qt.ForegroundRole:
+                if self._data[index.row()][index.column()] > 0:
+                    return QColor(100, 255, 100)
+                elif self._data[index.row()][index.column()] < 0:
+                    return QColor(255, 100, 100)
+            if role == Qt.DisplayRole:
+                temp = self._data[index.row()][index.column()]*100
+                return (str(round(temp, 2))+"%")
 
         if role == Qt.DisplayRole:
             if self._headers[index.column()].find("Time") != -1:
@@ -64,10 +69,10 @@ class ScreenerModel(QAbstractTableModel):
         """Sort table by given column number."""
         if len(self._data) > 0:
             self._data = sorted(self._data, key=operator.itemgetter(col))
-            
+
             if order == Qt.DescendingOrder:
                 self._data.reverse()
-
+            self.layoutChanged.emit()
             # self.emit(SIGNAL("layoutAboutToBeChanged()"))
             # self.emit(SIGNAL("layoutChanged()"))
 

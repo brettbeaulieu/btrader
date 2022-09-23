@@ -1,11 +1,13 @@
+import asyncio
 import math
+
 import aiohttp
 from aiolimiter import AsyncLimiter
-import asyncio
-
+from bitget import consts as c
+from bitget import utils
 from bitget.mix.market_api import MarketApi
+
 from candle import Candle
-from bitget import consts as c, utils
 
 
 class DateRangeTooLargeError(Exception):
@@ -38,7 +40,7 @@ class TimeSeriesAsynch:
             series = []
             candles = await resp.json()
             for x in candles:
-                if (x == None) or (x[1] == x[2] == x[3] == x[4]):
+                if (x is None) or (x[1] == x[2] == x[3] == x[4]):
                     break
                 series.append(Candle(x[0], x[1], x[2], x[3], x[4], x[5], x[6]))
             return series

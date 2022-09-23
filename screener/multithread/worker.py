@@ -28,17 +28,19 @@ class Worker(QRunnable):
         self.args = args
         self.kwargs = kwargs
         self.signals = WorkerSignals()
-        self.terminate = False
+        self.threadactive = True
 
     @pyqtSlot()
     def run(self):
         '''
         Initialise the runner function with passed args, kwargs.
         '''
-        if not self.terminate:
-            # Retrieve args/kwargs here; and fire processing using them
-            try:
-                self.fn(*self.args, **self.kwargs)
-            finally:
-                self.signals.finished.emit()  # Done
-                self.terminate = True
+        # Retrieve args/kwargs here; and fire processing using them
+        try:
+            self.fn(*self.args, **self.kwargs)
+        finally:
+            self.signals.finished.emit()  # Done
+
+    def stop(self):
+        self.threadactive = False
+        self.wait()
