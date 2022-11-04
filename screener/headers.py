@@ -6,16 +6,16 @@ class CustomHeaders(QWidget):
     """Parameter:\n dict 'headers', a dictionary of string header labels keyed by their api names. Examples specified in const.py"""
     def __init__(self, headers):
         super().__init__()
-       
+
         self.allHeaders = c.CONTRACT_HEADERS | c.TICKER_HEADERS
         self.usedHeaders = headers
         self.unusedHeaders = { x : self.allHeaders[x] for x in set(self.allHeaders) - set(self.usedHeaders) }
         self.initialUsed = self.usedHeaders
         self.initialUnused = self.unusedHeaders
-        
+
         # create used/unused headers lists
         self.mainLayout = QVBoxLayout()
-        
+
         self.topWin = QWidget()
         self.topLayout = QHBoxLayout()
         self.topWin.setLayout(self.topLayout)
@@ -24,13 +24,13 @@ class CustomHeaders(QWidget):
         self.unused = QListWidget()
         self.topLayout.addWidget(self.used)
         self.topLayout.addWidget(self.unused)
-        
+
         for x in self.usedHeaders.values():
             self.used.addItem(QListWidgetItem(x))
 
         for x in self.unusedHeaders.values():
             self.unused.addItem(QListWidgetItem(x))
-    
+
         # create buttons window
         self.toolsWin = QWidget()
         self.toolsLayout = QHBoxLayout(self.toolsWin)
@@ -39,15 +39,15 @@ class CustomHeaders(QWidget):
         self.iconLeft = self.style().standardIcon(QStyle.SP_ArrowLeft)
         self.iconConfirm = self.style().standardIcon(QStyle.SP_DialogApplyButton)
         self.iconCancel = self.style().standardIcon(QStyle.SP_DialogCancelButton)
-        
+
         self.unuseButton = QPushButton(self.iconRight,"Make Unused")
         self.useButton = QPushButton(self.iconLeft,"Make Used")
         self.applyButton = QPushButton(self.iconConfirm,"Apply Changes")
         self.discardButton = QPushButton(self.iconCancel,"Discard Changes")
-        
+
         self.useButton.clicked.connect(self.makeUsed)
         self.discardButton.clicked.connect(self.close)
-        
+
         self.toolsWin.setLayout(self.toolsLayout)
         self.toolsLayout.addWidget(self.unuseButton)
         self.toolsLayout.addWidget(self.useButton)        
@@ -66,7 +66,3 @@ class CustomHeaders(QWidget):
             return   
         newUsed = self.unused.takeItem(self.unused.currentItem())
         
-
-
-        
-

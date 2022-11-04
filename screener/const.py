@@ -42,6 +42,4 @@ DEFAULT_HEADERS = [
     "Base Volume",
     "Quote Volume",
     "USDT Volume",
-    "Open UTC",
-    "% Change UTC",
 ]

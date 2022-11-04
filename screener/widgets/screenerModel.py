@@ -52,6 +52,14 @@ class ScreenerModel(QAbstractTableModel):
                 val = int(self._data[index.row()][index.column()])
                 val2 = datetime.datetime.fromtimestamp(val / 1000)
                 return val2.strftime("%m/%d %H:%M")
+            if index.column() == 6:
+                temp = self._data[index.row()][index.column()]*100
+                return (str(round(temp, 2))+"%")
+            if self._headers[index.column()].find("Volume") != -1:
+                if self._data[index.row()][index.column()] >= 1000000000:
+                    return str(round(self._data[index.row()][index.column()]/1000000000.0,2))+"B"
+                if self._data[index.row()][index.column()] >= 1000000:
+                    return str(round(self._data[index.row()][index.column()]/1000000.0,2))+"M"
             return self._data[index.row()][index.column()]
 
     def setHeaderData(self, column, orientation, data, role=Qt.EditRole):
