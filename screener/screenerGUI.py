@@ -73,7 +73,7 @@ class Screener(QWidget):
             color: white; border-radius:10px;}"
         )
 
-        # Configure Tools (Buttons/Interactives)
+        # Configure Tools (Buttons, Sliders, etc.)
         self.configButton = QPushButton(self.toolsWidget, text="Configure")
         self.configButton.setStyleSheet("background-color:#414141;padding:50px;")
         self.configButton.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Minimum)
