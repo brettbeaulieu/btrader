@@ -30,23 +30,23 @@ def getBalanceSeries(csvList:list, feesOn:bool=True, startDate:str="", endDate:s
         # ensure each row of csv is in correct date range, or 
         # otherwise handle unspecified dates.
         if (row[0] >= startDate or not startDate) and (row[0] <= endDate or not endDate):
-            if "Transfer in" in row[3]:
+            if "trans_from" in row[3]:
                 balance+=row[4]
-            if "Trial" in row[3]:
+            if "trial" in row[3]:
                 balance+=row[4]
 
             #untested
-            if "Transfer out" in row[3]:
+            if "trans_to" in row[3]:
                 balance+=row[4]
         
-            if "Close" in row[3]:
+            if "close" in row[3]:
                 if feesOn:
                     balance+=(row[4]+row[5])
                 else:
                     balance+=row[4]
-            if ("Open" in row[3]) and feesOn:
+            if ("open" in row[3]) and feesOn:
                 balance+=row[5]
-            if ("Fees" in row[3]) and feesOn:
+            if ("fee" in row[3]) and feesOn:
                 balance+=row[4]
             balanceList.append([row[0],balance])
     return balanceList

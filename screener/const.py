@@ -25,21 +25,24 @@ TICKER_HEADERS = {
     "high24h": "24H High",
     "low24h": "24H Low",
     "timestamp": "Time",
-    "priceChangePct": "Change %",
+    "priceChangePercent": "Change %",
     "baseVolume": "Base Volume",
     "quoteVolume": "Quote Volume",
     "usdtVolume": "USDT Volume",
 }
 
-DEFAULT_HEADERS = [
-    "Symbol",
-    "Last Price",
-    "Best Ask",
-    "Best Bid",
-    "24H High",
-    "24H Low",
-    "% Change",
-    "Base Volume",
-    "Quote Volume",
-    "USDT Volume",
-]
+DEFAULT_HEADERS = {
+    "symbol": "Symbol",
+    "last": "Last Price",
+    "bestAsk": "Best Ask",
+    "bestBid": "Best Bid",
+    "high24h": "24H High",
+    "low24h": "24H Low",
+    "priceChangePercent": "% Change",
+    "baseVolume": "Base Volume",
+    "quoteVolume": "Quote Volume",
+    "usdtVolume": "USDT Volume",
+}
+
+ALL_HEADERS = CONTRACT_HEADERS | TICKER_HEADERS
+

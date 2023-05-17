@@ -89,3 +89,4 @@ class ScreenerModel(QAbstractTableModel):
 
     def columnCount(self, parent):
         return len(self._headers)
+

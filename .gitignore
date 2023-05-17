@@ -364,6 +364,7 @@ FodyWeavers.xsd
 
 # Test File
 maintester.py
+/.venv
 /.mypy_cache
 /.vscode
 /BitgetTrader.sln

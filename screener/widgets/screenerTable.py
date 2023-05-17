@@ -10,6 +10,7 @@ from ..widgets.screenerModel import ScreenerModel
     requests.
 """
 
+
 class ScreenerTable(QTableView):
     def __init__(self, mAPI, headers=c.DEFAULT_HEADERS, types=c.TYPES[0]):
         super().__init__()
@@ -28,7 +29,7 @@ class ScreenerTable(QTableView):
         self.setFrameShadow(QFrame.Plain)
         self.buildStyle()
 
-        self.model = ScreenerModel(self.headers)
+        self.model = ScreenerModel(list(self.headers.values()))
         self.setModel(self.model)
         self.setShowGrid(False)
         self.threadPool = QThreadPool()
@@ -56,20 +57,20 @@ class ScreenerTable(QTableView):
                 color: #3D3D3D; }"
         )
 
-    
-    def getData(self): 
+    def getData(self):
         # --Subscribe to Channels--
         # -Get all tickers from REST API-
         tickers = self.mAPI.tickers(self.types)["data"]
         # Iterate through returned tickers, push to data model.
         for ticker in tickers:
-            ticker["symbol"] = ticker["symbol"].split("_")[0]
-            ticker = list(ticker.values())
+            # Filter out unwanted data, as defined by headers.
+            filteredTicker = []
+            for key in self.headers.keys():
+                filteredTicker.append(ticker[key])
             # Convert all numeric values to floats.
             # If contract is not currently listed, some elements
             # will register as None, and will be changed to zero
-            ticker[1:] = [float(x) if x is not None else 0 for x in ticker[1:]]
-            ticker = ticker[:-2]
-            ticker.pop(6)
-            self.model.addData(ticker)
-        return
+            filteredTicker[1:] = [
+                float(x) if x is not None else 0 for x in filteredTicker[1:]
+            ]
+            self.model.addData(filteredTicker)

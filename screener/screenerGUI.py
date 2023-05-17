@@ -2,15 +2,22 @@ import time
 
 from PyQt5.QtCore import Qt, QThreadPool
 from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import (QAbstractItemView, QHBoxLayout, QPushButton,
-                             QSizePolicy, QSpacerItem, QTabWidget, QVBoxLayout,
-                             QWidget)
+from PyQt5.QtWidgets import (
+    QAbstractItemView,
+    QHBoxLayout,
+    QPushButton,
+    QSizePolicy,
+    QSpacerItem,
+    QTabWidget,
+    QVBoxLayout,
+    QWidget,
+)
 
-from .const import DEFAULT_HEADERS, TYPES
+from . import const as c
 from .multithread.worker import Worker
-from .widgets.menuBar import MenuBar
 from .widgets.screenerTable import ScreenerTable
 from .widgets.sliderWidget import SliderWidget
+from .widgets.customheaders import CustomHeaders
 
 
 class Screener(QWidget):
@@ -20,28 +27,18 @@ class Screener(QWidget):
     def __init__(self, mAPI):
         super().__init__()
         self.mAPI = mAPI
-        self.headers = DEFAULT_HEADERS
-        self.maximized = False
-        self.setWindowFlag(Qt.FramelessWindowHint)
+        self.headers = c.DEFAULT_HEADERS
         self.buildMainStyle()
 
         # Building Children
         self.buildTools()
-        self.menuBar = MenuBar(self)
 
         self.buildTabWidget()
         self.styleWidget()
 
         # Pack Children
         self.mainLayout = QVBoxLayout(self)
-        self.mainLayout.setSpacing(0)
-        self.mainLayout.setContentsMargins(0, 0, 0, 0)
-        self.mainLayout.addWidget(self.menuBar, Qt.AlignTop)
-        self.mainLayout.addWidget(self.toolsWidget)
-        self.mainLayout.addWidget(self.tabWidget)
-        self.mainLayout.setStretch(0, 0)
-        self.mainLayout.setStretch(1, 1)
-        self.mainLayout.setStretch(2, 7)
+        self.pack_main_layout()
         self.setLayout(self.mainLayout)
 
         self.threadpool = QThreadPool()
@@ -77,7 +74,7 @@ class Screener(QWidget):
         self.configButton = QPushButton(self.toolsWidget, text="Configure")
         self.configButton.setStyleSheet("background-color:#414141;padding:50px;")
         self.configButton.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Minimum)
-
+        self.configButton.clicked.connect(self.buildHeaderConfig)
         self.headerSpacer = QSpacerItem(
             1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum
         )
@@ -100,8 +97,8 @@ class Screener(QWidget):
 
     def buildTabWidget(self):
         self.tabWidget = QTabWidget(self)
-        self.perpUsdtTab = self.buildTab(TYPES[0], "USDT Margin Futures")
-        self.perpUniTab = self.buildTab(TYPES[1], "Universal Margin Futures")
+        self.perpUsdtTab = self.buildTab(c.TYPES[0], "USDT Margin Futures")
+        self.perpUniTab = self.buildTab(c.TYPES[1], "Universal Margin Futures")
 
     def buildTab(self, types: str, title: str):
         tab = ScreenerTable(self.mAPI, self.headers, types)
@@ -139,9 +136,42 @@ class Screener(QWidget):
         self.tabWidget.currentWidget().getData()
         self.tabWidget.currentWidget().update()
 
-    def maximize(self):
-        if self.maximized:
-            self.showNormal()
-        else:
-            self.showMaximized()
-        self.maximized = not self.maximized
+    def pack_main_layout(self):
+        self.mainLayout.setSpacing(0)
+        self.mainLayout.setContentsMargins(0, 0, 0, 0)
+        self.mainLayout.addWidget(self.toolsWidget)
+        self.mainLayout.addWidget(self.tabWidget)
+        self.mainLayout.setStretch(0, 1)
+        self.mainLayout.setStretch(1, 7)
+
+    def buildHeaderConfig(self):
+        headers_copy = self.headers.copy()
+        self.headerGUI = CustomHeaders(headers_copy)
+        self.headerGUI.applyButton.clicked.connect(self.applyHeaders)
+
+    def applyHeaders(self):
+        # Find the headers that were removed and added
+        removed = {
+            x: c.ALL_HEADERS[x]
+            for x in set(self.headers) - set(self.headerGUI.usedHeaders)
+        }
+        added = {
+            x: c.ALL_HEADERS[x]
+            for x in set(self.headerGUI.usedHeaders) - set(self.headers)
+        }
+
+        # Remove and add the columns to the table
+        for key, val in removed.items():
+            for idx in range(self.tabWidget.count()):
+                columnIndex = self.tabWidget.widget(idx).model._headers.index(val)
+                self.tabWidget.widget(idx).model.removeColumn(columnIndex)
+        for key, val in added.items():
+            for idx in range(self.tabWidget.count()):
+                self.tabWidget.widget(idx).model.insertColumn(val)
+
+        self.headers = self.headerGUI.usedHeaders
+        for idx in range(self.tabWidget.count()):
+            self.tabWidget.widget(idx).headers = self.headerGUI.usedHeaders
+            self.tabWidget.widget(idx).getData()
+        self.refresh()
+        self.headerGUI.close()
