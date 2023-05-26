@@ -367,12 +367,4 @@ FodyWeavers.xsd
 .docs/source/_build
 maintester.py
 /.venv
-/.mypy_cache
 /.vscode
-/BitgetTrader.sln
-/bitgetHist.csv
-/BitgetTrader.pyperf
-/lintspecs.pylintrc
-/BitgetTrader.pyproj
-/make.bat
-/Makefile
