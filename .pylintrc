@@ -1,0 +1,2 @@
+extension-pkg-whitelist=PyQt5  # 'Pylint doesn't load any C extensions by default, because those can run arbitrary code.'
+                               # https://stackoverflow.com/questions/56726580/no-name-qapplication-in-module-pyqt5-qtwidgets-error-in-pylint
