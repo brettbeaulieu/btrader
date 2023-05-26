@@ -10,9 +10,9 @@ Welcome to BTrader's documentation!
    :maxdepth: 3
    :caption: Contents:
 
-   installation
-   backend
-   frontend
+   source/installation
+   source/backend
+   source/frontend
 
 Indices and tables
 ==================

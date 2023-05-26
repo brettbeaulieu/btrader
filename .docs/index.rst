@@ -6,6 +6,9 @@
 Welcome to BTrader's documentation!
 ===================================
 
+BTrader is a collection of tools for trading cryptocurrencies.
+Currently, a screener and a portfolio tracker are in development.
+
 .. toctree::
    :maxdepth: 3
    :caption: Contents:
