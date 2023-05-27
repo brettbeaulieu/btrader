@@ -12,11 +12,10 @@ from ..widgets.screenerModel import ScreenerModel
 
 
 class ScreenerTable(QTableView):
-    def __init__(self, mAPI, headers=c.DEFAULT_HEADERS, types=c.TYPES[0]):
+    def __init__(self, adapter, headers):
         super().__init__()
-        self.mAPI = mAPI
-        self.headers = headers
-        self.types = types
+        self.adapter = adapter
+        self.headers = adapter.get_ticker_headers()
 
         self.font = QFont("Bahnschrift", 12)
         self.setFont(self.font)
@@ -58,9 +57,8 @@ class ScreenerTable(QTableView):
         )
 
     def getData(self):
-        # --Subscribe to Channels--
-        # -Get all tickers from REST API-
-        tickers = self.mAPI.tickers(self.types)["data"]
+        # -Get all tickers
+        tickers = self.adapter.get_tickers()
         # Iterate through returned tickers, push to data model.
         for ticker in tickers:
             # Filter out unwanted data, as defined by headers.

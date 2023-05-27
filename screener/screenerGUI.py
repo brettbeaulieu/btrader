@@ -18,15 +18,15 @@ from .multithread.worker import Worker
 from .widgets.screenerTable import ScreenerTable
 from .widgets.sliderWidget import SliderWidget
 from .widgets.customheaders import CustomHeaders
-
+from adapters.base_adapter import BaseAdapter
 
 class Screener(QWidget):
     """QWidget displaying contracts available for screening"""
 
     # TODO: Add a cached header file, and header customization.
-    def __init__(self, mAPI):
+    def __init__(self, adapter: BaseAdapter):
         super().__init__()
-        self.mAPI = mAPI
+        self.adapter = adapter
         self.headers = c.DEFAULT_HEADERS
         self.buildMainStyle()
 
@@ -101,7 +101,7 @@ class Screener(QWidget):
         self.perpUniTab = self.buildTab(c.TYPES[1], "Universal Margin Futures")
 
     def buildTab(self, types: str, title: str):
-        tab = ScreenerTable(self.mAPI, self.headers, types)
+        tab = ScreenerTable(self.adapter, self.headers)
         tab.verticalHeader().setDefaultAlignment(Qt.AlignHCenter)
         tab.verticalHeader().setDefaultSectionSize(50)
         # TODO: Round out tab styling
