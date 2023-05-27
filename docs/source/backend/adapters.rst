@@ -20,5 +20,5 @@ Implemented Adapters
 Base Adapter
 ~~~~~~~~~~~~
 
-.. autoclass:: source.adapters.base.BaseAdapter
+.. autoclass:: source.backend.adapters.base.BaseAdapter
    :members: 
