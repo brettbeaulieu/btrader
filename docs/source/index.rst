@@ -13,9 +13,9 @@ Currently, a screener and a portfolio tracker are in development.
    :maxdepth: 3
    :caption: Contents:
 
-   source/installation
-   source/backend
-   source/frontend
+   installation
+   backend
+   frontend
 
 Indices and tables
 ==================
