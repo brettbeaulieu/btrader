@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 
 import pandas as pd
 
-from adapters.base_adapter import BaseAdapter
+from adapters.base import BaseAdapter
 from adapters.bitget.bitget_sdk.spot.market_api import MarketApi
 
 from .const import Timeframes

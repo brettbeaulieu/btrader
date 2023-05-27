@@ -11,10 +11,14 @@ copyright = "2023, Brett Beaulieu"
 author = "Brett Beaulieu"
 release = "0.1"
 
+import os
+import sys
+sys.path.insert(0, os.path.abspath('../..'))
+print(sys.path)
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = ["sphinx.ext.autodoc", "sphinx.ext.autosummary"]
+extensions = ["sphinx.ext.autodoc", "sphinx.ext.autosummary", "sphinx.ext.napoleon"]
 
 templates_path = ["_templates"]
 exclude_patterns = []

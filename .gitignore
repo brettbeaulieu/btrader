@@ -363,8 +363,8 @@ MigrationBackup/
 FodyWeavers.xsd
 
 # Test File
-.docs/build
-.docs/source/_build
+docs/build
+docs/source/_build
 maintester.py
 /.venv
 /.vscode
