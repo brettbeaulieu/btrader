@@ -18,7 +18,8 @@ from .multithread.worker import Worker
 from .widgets.screenerTable import ScreenerTable
 from .widgets.sliderWidget import SliderWidget
 from .widgets.customheaders import CustomHeaders
-from ..adapters.base import BaseAdapter
+from ...backend.adapters.base import BaseAdapter
+
 
 class Screener(QWidget):
     """QWidget displaying contracts available for screening"""

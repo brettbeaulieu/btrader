@@ -1,21 +1,24 @@
-import math
 from concurrent.futures import ThreadPoolExecutor
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import pandas as pd
-from .bitget_sdk.spot.market_api import MarketApi
 
 from ..base import BaseAdapter
+from .bitget_sdk.spot.market_api import MarketApi
 from .const import Timeframes
 from .utils import build_date_sequence
 
 
 class BitgetSpotAdapter(BaseAdapter):
+    """Adapter for the Bitget spot market API.
+
+    Attributes:
+        api (MarketApi): The Bitget spot market API.
+        headers (dict): A dictionary mapping column names to their display names.
+    """
+
     def __init__(self, api_key, secret_key, passphrase):
-        """Initialize the BitGetAdapter class."""
-        self.__api_key = api_key
-        self.__secret_key = secret_key
-        self.__passphrase = passphrase
+        """Initialize the BitgetSpotAdapter class."""
         self.api = MarketApi(api_key, secret_key, passphrase)
         self.headers = {
             "symbol": "Symbol",
@@ -36,12 +39,21 @@ class BitgetSpotAdapter(BaseAdapter):
         }
 
     def get_exchange(self):
+        """Returns the name of the exchange."""
         return "Bitget"
 
     def get_granularities(self) -> list[str]:
+        """Returns a list of supported granularities/periods.
+
+        Returns:
+            list[str]: A list of supported granularities/periods."""
         return Timeframes.TF_SPOT
 
     def get_tickers(self) -> list[dict]:
+        """Returns a list of all tickers offered by the exchange.
+        Returns:
+            list[dict]: A list of all tickers.
+        """
         return self.api.tickers()["data"]
 
     def get_candles(

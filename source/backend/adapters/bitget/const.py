@@ -1,8 +1,9 @@
-"""Enumeration of granularity timeframes for API candlestick data"""
 from datetime import timedelta
 
 
 class Timeframes:
+    """Enumeration of granularity timeframes for Bitget API candlestick data"""
+
     TF_SPOT_1m = "1min"  # 1 minute
     TF_SPOT_5m = "5min"  # 5 minute
     TF_SPOT_15m = "15min"  # 15 minute
@@ -44,7 +45,7 @@ class Timeframes:
         TF_UTC_1D,
         TF_UTC_3D,
         TF_UTC_1W,
-        TF_UTC_1M
+        TF_UTC_1M,
     ]
     TF_SPOT = [
         TF_SPOT_1m,
@@ -111,6 +112,8 @@ class Timeframes:
 
 
 class ProductType:
+    """Enumeration of product types for the Bitget API"""
+
     PT_SPOT = "_SPBL"  # Spot
     PT_USDT_PERP = "_UMCBL"  # USDT perpetual contract
     PT_UNIV_PERP = "_DMCBL"  # Universal margin perpetual contract
