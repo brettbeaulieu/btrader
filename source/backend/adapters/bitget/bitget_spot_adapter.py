@@ -38,8 +38,12 @@ class BitgetSpotAdapter(BaseAdapter):
             "change": "% Change",
         }
 
-    def get_exchange(self):
-        """Returns the name of the exchange."""
+    def get_exchange(self) -> str:
+        """
+        Returns the name of the exchange.
+        
+        Returns:
+            str: The name of the exchange."""
         return "Bitget"
 
     def get_granularities(self) -> list[str]:
@@ -48,9 +52,20 @@ class BitgetSpotAdapter(BaseAdapter):
         Returns:
             list[str]: A list of supported granularities/periods."""
         return Timeframes.TF_SPOT
+    
+    def get_symbols(self) -> list[str]:
+        """
+        Returns a list of all symbols offered by the exchange.
+
+        Returns:
+            list[str]: A list of all symbols.
+        """
+        return super().get_symbols()
 
     def get_tickers(self) -> list[dict]:
-        """Returns a list of all tickers offered by the exchange.
+        """
+        Returns a list of all tickers offered by the exchange.
+        
         Returns:
             list[dict]: A list of all tickers.
         """
@@ -60,39 +75,39 @@ class BitgetSpotAdapter(BaseAdapter):
         self, symbol: str, granularity: str, start: datetime, end: datetime
     ) -> pd.DataFrame:
         """
-        Retrieves kline data from the market API and returns it as a pandas dataframe.
+        Retrieves a candlestick series from the market API, and returns it as a pandas dataframe.
 
-        Args:
-            symbol (str): The symbol to retrieve kline data for.
-            granularity (str): The granularity of the kline data.
-            start (datetime): The start time of the kline data.
-            end (datetime): The end time of the kline data.
+        Parameters:
+            symbol (str): The symbol to retrieve a candlestick series for.
+            granularity (str): The granularity/period of the candlesticks.
+            start (datetime): The start time of the candlestick series.
+            end (datetime): The end time of the candlestick series.
             limit (int): Maximum candles to retrieve per request (default 1000).
         Returns:
-            pandas.DataFrame: A dataframe containing the kline data.
+            pandas.DataFrame: A dataframe containing the candlestick series.
         """
         delta = Timeframes.DT_MAP[granularity]
         dates = build_date_sequence(start, end, delta)
-        kline = []
+        candlestick = []
         with ThreadPoolExecutor() as executor:
             for i in range(1, len(dates)):
                 part = executor.submit(
                     self.get_candles_worker, symbol, granularity, dates[i - 1], dates[i]
                 )
-                kline.extend(part.result())
+                candlestick.extend(part.result())
 
-        # Create pandas dataframe from the kline
-        kline = [x[0:6] for x in kline]
+        # Create pandas dataframe from the candlestick
+        candlestick = [x[0:6] for x in candlestick]
         df = pd.DataFrame(
             {
                 "Time": pd.Series(
-                    [pd.to_datetime(float(x[0]) * 1000000) for x in kline]
+                    [pd.to_datetime(float(x[0]) * 1000000) for x in candlestick]
                 ),
-                "Open": pd.Series([x[1] for x in kline], dtype=float),
-                "High": pd.Series([x[2] for x in kline], dtype=float),
-                "Low": pd.Series([x[3] for x in kline], dtype=float),
-                "Close": pd.Series([x[4] for x in kline], dtype=float),
-                "Volume": pd.Series([x[5] for x in kline], dtype=float),
+                "Open": pd.Series([x[1] for x in candlestick], dtype=float),
+                "High": pd.Series([x[2] for x in candlestick], dtype=float),
+                "Low": pd.Series([x[3] for x in candlestick], dtype=float),
+                "Close": pd.Series([x[4] for x in candlestick], dtype=float),
+                "Volume": pd.Series([x[5] for x in candlestick], dtype=float),
             }
         )
         return df
@@ -105,17 +120,19 @@ class BitgetSpotAdapter(BaseAdapter):
         end: datetime,
         limit: int = 1000,
     ) -> list[list]:
-        """Worker function for retrieving kline data from the market API.
+        """
+        Worker function for retrieving candlestick data from the market API.
+        
         Args:
-            symbol (str): The symbol to retrieve kline data for.
-            granul (str): The granularity of the kline data.
-            start (datetime): The start time of the kline data.
-            end (datetime): The end time of the kline data.
+            symbol (str): The symbol to retrieve a candlestick series for.
+            granul (str): The granularity/period of the candlesticks.
+            start (datetime): The start time of the candlestick series.
+            end (datetime): The end time of the candlestick series.
             limit (int): Maximum candles to retrieve per request (default 1000).
         Returns:
-            list[list]: A list of lists containing the kline data.
+            list[list]: A list of lists representing the candlestick series.
         """
-        kline = []
+        candlestick = []
         delta = Timeframes.DT_MAP[granul]
         to_ms_og = str(int(start.timestamp() * 1000))
         # Get the from and to timestamps
@@ -131,9 +148,9 @@ class BitgetSpotAdapter(BaseAdapter):
         data = self.api.candles(symbol, granul, frm_ms, to_ms, limit)["data"]
         data = data["data"]
         vals = [list(x.values()) for x in data]
-        kline.extend(vals)
+        candlestick.extend(vals)
 
-        return kline
+        return candlestick
 
     def get_ticker_headers(self):
         return self.headers
