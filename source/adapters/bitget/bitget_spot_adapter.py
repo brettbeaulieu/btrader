@@ -3,10 +3,9 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta
 
 import pandas as pd
+from .bitget_sdk.spot.market_api import MarketApi
 
-from adapters.base import BaseAdapter
-from adapters.bitget.bitget_sdk.spot.market_api import MarketApi
-
+from ..base import BaseAdapter
 from .const import Timeframes
 from .utils import build_date_sequence
 
